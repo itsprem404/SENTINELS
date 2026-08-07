@@ -1,4 +1,5 @@
 import feedparser
+from agent.editor import evaluate_topic
 
 RSS_FEEDS = [
     "https://openai.com/news/rss.xml",
@@ -8,15 +9,23 @@ RSS_FEEDS = [
 
 
 def fetch_latest_news():
-    news = []
+    approved_news = []
 
     for url in RSS_FEEDS:
         feed = feedparser.parse(url)
 
         for entry in feed.entries[:5]:
-            news.append({
-                "title": entry.title,
-                "link": entry.link
-            })
 
-    return news
+            title = entry.title
+            summary = getattr(entry, "summary", "")
+
+            decision = evaluate_topic(title, summary)
+
+            if decision["publish"]:
+                approved_news.append({
+                    "title": title,
+                    "link": entry.link,
+                    "reason": decision["reason"]
+                })
+
+    return approved_news
