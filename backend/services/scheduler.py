@@ -1,11 +1,25 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
+from services.rss_service import fetch_latest_news
 
 scheduler = BackgroundScheduler()
 
 
 def autonomous_job():
-    print(f"[{datetime.now()}] Autonomous Agent is running...")
+    print(f"\n===== {datetime.now()} =====")
+
+    news = fetch_latest_news()
+
+    if not news:
+        print("No news found.")
+        return
+
+    print("Latest AI News:\n")
+
+    for article in news[:5]:
+        print(f"• {article['title']}")
+        print(article['link'])
+        print()
 
 
 def start_scheduler():
