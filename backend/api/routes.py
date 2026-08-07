@@ -2,7 +2,7 @@ import uuid
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from services.scheduler import start_scheduler
+from scheduler.scheduler import start_scheduler
 
 from api.schemas import InitRequest
 from database.db import get_db
