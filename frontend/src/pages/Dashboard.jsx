@@ -1,125 +1,300 @@
 import { useEffect, useState } from "react";
-import { getFeed } from "../api/agentApi";
+import { getFeed, getProfile } from "../api/agentApi";
 
 import AgentSetup from "../components/AgentSetup";
 import PostCard from "../components/PostCard";
+import PersonaProfile from "../components/PersonaProfile";
 
 function Dashboard() {
+
   const [posts, setPosts] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const [agentId, setAgentId] = useState(() => {
-  return localStorage.getItem("agentId");
+    return localStorage.getItem("agentId");
   });
 
+
   useEffect(() => {
-    async function loadFeed() {
-      if (!agentId) return;
+  async function loadAgentData() {
+    if (!agentId) return;
 
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
+      setProfileLoading(true);
 
-        const data = await getFeed(agentId);
+      const [feedData, profileData] = await Promise.all([
+        getFeed(agentId),
+        getProfile(agentId),
+      ]);
 
-        setPosts(data.posts || []);
-      } catch (error) {
-        console.error("Feed error:", error);
-      } finally {
-        setLoading(false);
-      }
+      setPosts(feedData.posts || []);
+      setProfile(profileData);
+    } catch (error) {
+      console.error("Agent data error:", error);
+    } finally {
+      setLoading(false);
+      setProfileLoading(false);
+    }
+  }
+
+  loadAgentData();
+}, [agentId]);
+
+
+  function handleSwitchAgent() {
+
+    const confirmed = window.confirm(
+      "Switch agent?\n\nYour current agent will remain saved, but you will return to the agent setup screen."
+    );
+
+
+    if (!confirmed) {
+      return;
     }
 
-    loadFeed();
-  }, [agentId]);
+
+    localStorage.removeItem("agentId");
+
+    setAgentId(null);
+
+    setPosts([]);
+
+  }
+
 
   return (
+
     <div className="dashboard">
-      {/* HEADER */}
+
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <header className="hero">
+
         <h1>SENTINELS</h1>
 
-        <p>Autonomous AI Persona Dashboard</p>
+        <p>
+          Autonomous AI Persona Dashboard
+        </p>
+
       </header>
 
-      {/* CREATE AGENT */}
+
+
+      {/* =========================
+          CREATE AGENT
+      ========================= */}
 
       {!agentId && (
+
         <section className="setup-section">
-          <h2>Create Intelligence Agent</h2>
 
           <AgentSetup
             onAgentCreated={(id) => {
-              localStorage.setItem("agentId", id);
+
+              localStorage.setItem(
+                "agentId",
+                id
+              );
 
               setAgentId(id);
+
             }}
           />
+
         </section>
+
       )}
 
-      {/* AGENT STATUS */}
+
+
+      {/* =========================
+          AGENT DASHBOARD
+      ========================= */}
 
       {agentId && (
-        <section className="status-grid">
-          <div className="status-card">
-            <div className="indicator"></div>
+
+        <>
+
+          {/* AGENT STATUS */}
+
+          <section className="status-grid">
+
+
+            <div className="status-card">
+
+              <div className="indicator"></div>
+
+              <div>
+
+                <h3>
+                  Agent Active
+                </h3>
+
+                <p>
+                  Autonomous monitoring enabled
+                </p>
+
+              </div>
+
+            </div>
+
+
+
+            <div className="info-card">
+
+              <h3>
+                Agent ID
+              </h3>
+
+              <code>
+                {agentId.slice(0, 8)}
+                ...
+                {agentId.slice(-6)}
+              </code>
+
+            </div>
+
+
+
+            <div className="info-card">
+
+              <h3>
+                Intelligence Reports
+              </h3>
+
+              <strong>
+                {posts.length}
+              </strong>
+
+            </div>
+
+          </section>
+
+
+
+          {/* =========================
+              AGENT CONTROLS
+          ========================= */}
+
+          <section className="agent-controls">
 
             <div>
-              <h3>Agent Active</h3>
 
-              <p>Autonomous monitoring enabled</p>
+              <span className="control-label">
+                CURRENT AGENT
+              </span>
+
+              <p>
+                Your autonomous intelligence persona is active.
+              </p>
+
             </div>
+
+
+            <button
+              className="switch-agent-btn"
+              onClick={handleSwitchAgent}
+            >
+              ⇄ Switch / Create Agent
+            </button>
+
+          </section>
+
+          {/* =========================
+              PERSONA PROFILE
+             ========================= */}
+
+          {!profileLoading && profile && (
+            <PersonaProfile profile={profile} />
+          )}
+
+
+          {/* =========================
+              FEED HEADER
+          ========================= */}
+
+          <div className="feed-header">
+
+            <h2>
+              Latest Intelligence Feed
+            </h2>
+
+            <p>
+              AI generated threat analysis and insights
+            </p>
+
           </div>
 
-          <div className="info-card">
-            <h3>Agent ID</h3>
 
-            <code>
-              {agentId.slice(0, 8)}...{agentId.slice(-6)}
-            </code>
-          </div>
 
-          <div className="info-card">
-            <h3>Intelligence Reports</h3>
+          {/* =========================
+              LOADING
+          ========================= */}
 
-            <strong>{posts.length}</strong>
-          </div>
-        </section>
+          {loading && (
+
+            <div className="loading">
+
+              Analyzing intelligence streams...
+
+            </div>
+
+          )}
+
+
+
+          {/* =========================
+              EMPTY FEED
+          ========================= */}
+
+          {!loading &&
+            posts.length === 0 && (
+
+              <div className="loading">
+
+                No intelligence reports available.
+
+              </div>
+
+            )}
+
+
+
+          {/* =========================
+              POSTS
+          ========================= */}
+
+          {!loading && posts.length > 0 && (
+
+            <div className="feed">
+
+              {posts.map((post) => (
+
+                <PostCard
+                  key={post.id}
+                  post={post}
+                />
+
+              ))}
+
+            </div>
+
+          )}
+
+        </>
+
       )}
 
-      {/* FEED HEADER */}
-
-      {agentId && (
-        <div className="feed-header">
-          <h2>Latest Intelligence Feed</h2>
-
-          <p>AI generated threat analysis and insights</p>
-        </div>
-      )}
-
-      {/* LOADING */}
-
-      {loading && (
-        <div className="loading">Analyzing intelligence streams...</div>
-      )}
-
-      {/* EMPTY */}
-
-      {!loading && agentId && posts.length === 0 && (
-        <p>No intelligence reports available.</p>
-      )}
-
-      {/* POSTS */}
-
-      <div className="feed">
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </div>
     </div>
+
   );
 }
+
 
 export default Dashboard;

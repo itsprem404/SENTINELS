@@ -27,3 +27,15 @@ export async function getFeed(agentId) {
 
   return await response.json();
 }
+
+export async function getProfile(agentId) {
+  const response = await fetch(
+    `${API_BASE_URL}/profile?agentId=${agentId}`
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch agent profile");
+  }
+
+  return await response.json();
+}
