@@ -497,3 +497,122 @@ AGENT SETUP IMPROVEMENT
     transform: translateY(0);
   }
 }
+
+/* =========================
+   AGENT CONTROLS
+========================= */
+
+.agent-controls {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 45px;
+
+  padding: 22px 25px;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(168, 85, 247, 0.10),
+      rgba(21, 21, 33, 0.95)
+    );
+
+  border: 1px solid var(--border);
+
+}
+
+
+.control-label {
+
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #c084fc;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+
+}
+
+
+.agent-controls p {
+
+  margin: 0;
+
+  color: var(--muted);
+
+}
+
+
+.switch-agent-btn {
+
+  flex-shrink: 0;
+
+  padding: 12px 18px;
+
+  border-radius: 12px;
+
+  border: 1px solid var(--border);
+
+  background: var(--surface2);
+
+  color: var(--text);
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s ease;
+
+}
+
+
+.switch-agent-btn:hover {
+
+  transform: translateY(-2px);
+
+  border-color: var(--primary);
+
+  background: var(--primary-soft);
+
+  box-shadow:
+    0 8px 25px rgba(168, 85, 247, 0.18);
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+  .agent-controls {
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+  }
+
+  .switch-agent-btn {
+
+    width: 100%;
+
+  }
+
+}
