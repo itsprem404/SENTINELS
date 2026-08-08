@@ -8,17 +8,37 @@ class Persona(Base):
     __tablename__ = "personas"
 
     id = Column(Integer, primary_key=True, index=True)
+
     agent_id = Column(String, unique=True, nullable=False)
+
     name = Column(String, nullable=False)
+
     domain = Column(String, nullable=False)
 
-    writing_style = Column(String, default="Professional")
-    interests = Column(Text, default="AI, Technology")
+    role = Column(
+        String,
+        default="AI Intelligence Analyst"
+    )
+
+    description = Column(
+        Text,
+        default="Autonomous intelligence monitoring agent"
+    )
+
+    writing_style = Column(
+        String,
+        default="Professional"
+    )
+
+    interests = Column(
+        Text,
+        default="AI, Technology"
+    )
+
     created_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc)
     )
-
 
 class Post(Base):
     __tablename__ = "posts"
