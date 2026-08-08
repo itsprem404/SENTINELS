@@ -8,10 +8,6 @@ def topic_already_published(
     agent_id: str,
     topic: str
 ) -> bool:
-    """
-    Check whether this agent has already published
-    a post about the given topic.
-    """
 
     existing_post = (
         db.query(Post)
@@ -23,3 +19,24 @@ def topic_already_published(
     )
 
     return existing_post is not None
+
+
+def get_recent_topics(
+    db: Session,
+    agent_id: str,
+    limit: int = 10
+):
+    """
+    Return the most recently published topics
+    for a specific agent.
+    """
+
+    posts = (
+        db.query(Post)
+        .filter(Post.agent_id == agent_id)
+        .order_by(Post.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    return [post.topic for post in posts if post.topic]

@@ -3,7 +3,11 @@ from sqlalchemy.orm import Session
 from database.models import Post
 from services.rss_service import fetch_latest_news
 from services.llm_service import generate_post
-from agent.memory import topic_already_published
+from agent.memory import (
+    topic_already_published,
+    get_recent_topics
+)
+
 
 
 def generate_one_post(
@@ -21,6 +25,14 @@ def generate_one_post(
     if not news:
         return None
 
+    recent_topics = get_recent_topics(
+        db=db,
+        agent_id=agent_id,
+        limit=10
+    )
+
+    print("Recent topics:", recent_topics)
+
     for article in news:
 
         topic = article["title"]
@@ -35,10 +47,11 @@ def generate_one_post(
 
         # Generate post
         generated_post = generate_post(
-            topic=topic,
-            persona_name=persona_name,
-            persona_domain=persona_domain
-        )
+        topic=topic,
+        persona_name=persona_name,
+        persona_domain=persona_domain,
+        recent_topics=recent_topics
+    )
 
         # Save post
         post = Post(
