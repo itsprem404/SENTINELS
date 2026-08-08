@@ -8,6 +8,7 @@ from api.schemas import InitRequest
 from database.db import get_db
 from database.models import Persona, Post
 
+
 router = APIRouter(
     prefix="/api/agent",
     tags=["Agent"]
@@ -19,12 +20,15 @@ def initialize_agent(
     request: InitRequest,
     db: Session = Depends(get_db)
 ):
+
     agent_id = str(uuid.uuid4())
 
     new_persona = Persona(
-        agent_id=agent_id,
-        name=request.persona.name,
-        domain=request.persona.domain
+    agent_id=agent_id,
+    name=request.persona.name,
+    domain=request.persona.domain,
+    writing_style="Professional",
+    interests=request.persona.description
     )
 
     db.add(new_persona)
@@ -36,15 +40,47 @@ def initialize_agent(
     }
 
 
+
+@router.get("/profile")
+def get_profile(
+    agent_id: str = Query(..., alias="agentId"),
+    db: Session = Depends(get_db)
+):
+
+    persona = (
+        db.query(Persona)
+        .filter(Persona.agent_id == agent_id)
+        .first()
+    )
+
+
+    if not persona:
+        return {
+            "error": "Agent not found"
+        }
+
+
+    return {
+        "name": persona.name,
+        "domain": persona.domain,
+        "role": persona.role,
+        "description": persona.description
+    }
+
+
+
 @router.get("/feed")
 def get_feed(
     agent_id: str = Query(None, alias="agentId"),
     db: Session = Depends(get_db)
 ):
+
     query = db.query(Post)
+
 
     if agent_id:
         query = query.filter(Post.agent_id == agent_id)
+
 
     posts = (
         query
@@ -52,23 +88,34 @@ def get_feed(
         .all()
     )
 
+
     result = []
 
+
     for post in posts:
+
         created_at = post.created_at
 
+
         if created_at.tzinfo is None:
-            created_at = created_at.replace(tzinfo=timezone.utc)
+            created_at = created_at.replace(
+                tzinfo=timezone.utc
+            )
         else:
-            created_at = created_at.astimezone(timezone.utc)
+            created_at = created_at.astimezone(
+                timezone.utc
+            )
+
 
         result.append({
             "id": post.id,
             "createdAt": created_at.isoformat().replace("+00:00", "Z"),
             "text": post.text,
             "rationale": post.rationale,
-            "sources": [post.sources] if post.sources else []
+            "sources": [post.sources] if post.sources else [],
+            "topic": post.topic
         })
+
 
     return {
         "posts": result
