@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-
 from database.models import Post
 
 
@@ -11,10 +10,7 @@ def topic_already_published(
 
     existing_post = (
         db.query(Post)
-        .filter(
-            Post.agent_id == agent_id,
-            Post.topic == topic
-        )
+        .filter(Post.topic == topic)
         .first()
     )
 
@@ -26,14 +22,8 @@ def get_recent_topics(
     agent_id: str,
     limit: int = 10
 ):
-    """
-    Return the most recently published topics
-    for a specific agent.
-    """
-
     posts = (
         db.query(Post)
-        .filter(Post.agent_id == agent_id)
         .order_by(Post.created_at.desc())
         .limit(limit)
         .all()

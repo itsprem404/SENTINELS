@@ -2,11 +2,11 @@ import uuid
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from scheduler.scheduler import start_scheduler
 
 from api.schemas import InitRequest
 from database.db import get_db
 from database.models import Persona, Post
+
 
 router = APIRouter(
     prefix="/api/agent",
@@ -34,8 +34,6 @@ def initialize_agent(
     db.commit()
     db.refresh(new_persona)
 
-    start_scheduler()
-
     # Return generated Agent ID
     return {
         "agentId": agent_id
@@ -43,21 +41,39 @@ def initialize_agent(
 
 
 @router.get("/feed")
-def get_feed(db: Session = Depends(get_db)):
+def get_feed(
+    agent_id: str = None,
+    db: Session = Depends(get_db)
+):
+    # Start with all posts
+    query = db.query(Post)
 
-    posts = db.query(Post).order_by(Post.created_at.desc()).all()
+    # If agent_id is provided, filter posts for that agent
+    if agent_id:
+        query = query.filter(Post.agent_id == agent_id)
 
-    response = []
+    # Latest posts first
+    posts = (
+        query
+        .order_by(Post.created_at.desc())
+        .all()
+    )
+
+    result = []
 
     for post in posts:
-        response.append({
-            "id": str(post.id),
-            "createdAt": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        result.append({
+            "id": post.id,
+            "agentId": post.agent_id,
+            "topic": post.topic,
+            "createdAt": post.created_at.isoformat(),
             "text": post.text,
             "rationale": post.rationale,
-            "sources": post.sources.split(",") if post.sources else []
+            "sources": post.sources.split(",") if post.sources else [],
+            "status": post.status
         })
 
     return {
-        "posts": response
+        "posts": result,
+        "count": len(result)
     }
