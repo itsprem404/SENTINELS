@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-
-import { getFeed } from "../api/agentApi";
+import { getFeed, getProfile } from "../api/agentApi";
 
 import AgentSetup from "../components/AgentSetup";
 import PostCard from "../components/PostCard";
-
+import PersonaProfile from "../components/PersonaProfile";
 
 function Dashboard() {
 
   const [posts, setPosts] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   const [agentId, setAgentId] = useState(() => {
     return localStorage.getItem("agentId");
@@ -18,38 +19,30 @@ function Dashboard() {
 
 
   useEffect(() => {
+  async function loadAgentData() {
+    if (!agentId) return;
 
-    async function loadFeed() {
+    try {
+      setLoading(true);
+      setProfileLoading(true);
 
-      if (!agentId) {
-        setPosts([]);
-        return;
-      }
+      const [feedData, profileData] = await Promise.all([
+        getFeed(agentId),
+        getProfile(agentId),
+      ]);
 
-
-      try {
-
-        setLoading(true);
-
-        const data = await getFeed(agentId);
-
-        setPosts(data.posts || []);
-
-      } catch (error) {
-
-        console.error("Feed error:", error);
-
-      } finally {
-
-        setLoading(false);
-
-      }
+      setPosts(feedData.posts || []);
+      setProfile(profileData);
+    } catch (error) {
+      console.error("Agent data error:", error);
+    } finally {
+      setLoading(false);
+      setProfileLoading(false);
     }
+  }
 
-
-    loadFeed();
-
-  }, [agentId]);
+  loadAgentData();
+}, [agentId]);
 
 
   function handleSwitchAgent() {
@@ -213,6 +206,13 @@ function Dashboard() {
 
           </section>
 
+          {/* =========================
+              PERSONA PROFILE
+             ========================= */}
+
+          {!profileLoading && profile && (
+            <PersonaProfile profile={profile} />
+          )}
 
 
           {/* =========================
@@ -250,7 +250,7 @@ function Dashboard() {
 
 
           {/* =========================
-              EMPTY
+              EMPTY FEED
           ========================= */}
 
           {!loading &&
