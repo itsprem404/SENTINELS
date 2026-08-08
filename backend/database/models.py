@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime
-from datetime import datetime
+from datetime import datetime, timezone
 
 from database.db import Base
 
@@ -14,7 +14,10 @@ class Persona(Base):
 
     writing_style = Column(String, default="Professional")
     interests = Column(Text, default="AI, Technology")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
 
 
 class Post(Base):
@@ -24,7 +27,10 @@ class Post(Base):
 
     agent_id = Column(String, nullable=False)
 
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
 
     text = Column(Text, nullable=False)
 

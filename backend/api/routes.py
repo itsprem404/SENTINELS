@@ -1,12 +1,11 @@
 import uuid
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from api.schemas import InitRequest
 from database.db import get_db
 from database.models import Persona, Post
-
 
 router = APIRouter(
     prefix="/api/agent",
@@ -42,7 +41,7 @@ def initialize_agent(
 
 @router.get("/feed")
 def get_feed(
-    agent_id: str = None,
+    agent_id: str = Query(None, alias="agentId"),
     db: Session = Depends(get_db)
 ):
     # Start with all posts
@@ -66,7 +65,7 @@ def get_feed(
             "id": post.id,
             "agentId": post.agent_id,
             "topic": post.topic,
-            "createdAt": post.created_at.isoformat(),
+            "createdAt": post.created_at.isoformat().replace("+00:00", "Z"),
             "text": post.text,
             "rationale": post.rationale,
             "sources": post.sources.split(",") if post.sources else [],
