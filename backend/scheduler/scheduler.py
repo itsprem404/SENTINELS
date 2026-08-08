@@ -20,7 +20,9 @@ def run_agent_cycle():
                 db=db,
                 agent_id=persona.agent_id,
                 persona_name=persona.name,
-                persona_domain=persona.domain
+                persona_domain=persona.domain,
+                writing_style=persona.writing_style,
+                interests=persona.interests
             )
 
     finally:

@@ -7,10 +7,12 @@ def topic_already_published(
     agent_id: str,
     topic: str
 ) -> bool:
-
     existing_post = (
         db.query(Post)
-        .filter(Post.topic == topic)
+        .filter(
+            Post.agent_id == agent_id,
+            Post.topic == topic
+        )
         .first()
     )
 
@@ -24,6 +26,7 @@ def get_recent_topics(
 ):
     posts = (
         db.query(Post)
+        .filter(Post.agent_id == agent_id)
         .order_by(Post.created_at.desc())
         .limit(limit)
         .all()

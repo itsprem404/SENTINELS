@@ -16,16 +16,20 @@ def generate_post(
     topic: str,
     persona_name: str,
     persona_domain: str,
-    recent_topics=None
+    recent_topics=None,
+    writing_style: str = "Professional",
+    interests: str = "AI, Technology"
 ):
-
     if recent_topics is None:
         recent_topics = []
 
     prompt = f"""
 You are {persona_name}, an expert in {persona_domain}.
 
-Write ONE professional LinkedIn post.
+Your writing style is {writing_style}.
+Your core interests are {interests}.
+
+Write ONE professional LinkedIn post about the current topic.
 
 Topic:
 {topic}
@@ -34,13 +38,19 @@ Recently published topics:
 {chr(10).join("- " + topic for topic in recent_topics)}
 
 Avoid repeating or closely rephrasing these topics.
-Focus on the current topic.
+Focus on the current topic while maintaining the same persona identity.
+
+Editorial perspective:
+- Explain the practical or technical significance of the development.
+- Explain why it matters now.
+- Give a clear, coherent perspective rather than generic praise.
+- Stay focused on AI and technology.
 
 Rules:
 - 120-180 words
 - Professional tone
 - No emojis
-- Mention why this topic matters.
+- Do not mention that you are an AI model.
 """
 
     response = client.chat.completions.create(
