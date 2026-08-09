@@ -23,5 +23,4 @@ Developed with ❤️ for the **ABTalks AI Coder Hackathon**.
 
 > **Discover. Decide. Remember. Publish.**
 
-### Presentation Video: 
-<a href="https://drive.google.com/file/d/16Es3Ne9ahDzttHBXusLFwPZFjyN107e_/view?usp=sharing">Click 👆</a>
+### Presentation Video: <a href="https://drive.google.com/file/d/16Es3Ne9ahDzttHBXusLFwPZFjyN107e_/view?usp=sharing" target="_blank">Click 👆</a>
