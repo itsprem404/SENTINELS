@@ -10,7 +10,7 @@ from database.db import get_db
 from database.models import Persona, Post
 from scheduler.scheduler import trigger_cycle
 
-router = APIRouter(prefix="/api/agent", tags=["Agent"])
+router = APIRouter(prefix="/agent", tags=["Agent"])
 
 
 @router.post("/init")

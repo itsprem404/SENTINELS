@@ -3,6 +3,7 @@ const API_BASE_URL =
 
 async function request(url, options) {
   const response = await fetch(url, options);
+
   if (!response.ok) {
     let message = `Request failed (${response.status})`;
     try {
@@ -11,6 +12,7 @@ async function request(url, options) {
     } catch {}
     throw new Error(message);
   }
+
   return response.json();
 }
 
@@ -23,9 +25,13 @@ export function initializeAgent(persona) {
 }
 
 export function getFeed(agentId) {
-  return request(`${API_BASE_URL}/feed?agentId=${encodeURIComponent(agentId)}`);
+  return request(
+    `${API_BASE_URL}/feed?agentId=${encodeURIComponent(agentId)}`
+  );
 }
 
 export function getProfile(agentId) {
-  return request(`${API_BASE_URL}/profile?agentId=${encodeURIComponent(agentId)}`);
+  return request(
+    `${API_BASE_URL}/profile?agentId=${encodeURIComponent(agentId)}`
+  );
 }
