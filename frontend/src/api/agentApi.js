@@ -6,11 +6,16 @@ async function request(url, options) {
 
   if (!response.ok) {
     let message = `Request failed (${response.status})`;
+
     try {
       const data = await response.json();
       message = data.detail || message;
     } catch {}
-    throw new Error(message);
+
+    const error = new Error(message);
+    error.status = response.status;
+
+    throw error;
   }
 
   return response.json();
@@ -19,7 +24,9 @@ async function request(url, options) {
 export function initializeAgent(persona) {
   return request(`${API_BASE_URL}/init`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ persona }),
   });
 }

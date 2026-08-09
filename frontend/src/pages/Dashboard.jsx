@@ -27,9 +27,19 @@ function Dashboard() {
       setPosts(feedData.posts || []);
       setProfile(profileData);
       setLastChecked(new Date());
-    } catch (err) {
-      setError(err.message || "Could not reach the autonomous agent.");
-    } finally {
+      } catch (err) {
+    if (err.status === 404) {
+      // Agent no longer exists on the server.
+      localStorage.removeItem("agentId");
+      setAgentId(null);
+      setPosts([]);
+      setProfile(null);
+      setError("");
+      return;
+    }
+
+    setError(err.message || "Could not reach the autonomous agent.");
+  } finally {
       setLoading(false);
     }
   }, [agentId]);
