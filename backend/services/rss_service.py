@@ -7,8 +7,6 @@ from agent.editor import evaluate_topic
 
 logger = logging.getLogger(__name__)
 
-# Mix first-party company feeds with independent technology feeds. The agent
-# discovers candidates live on every cycle; it does not rely on a fixed post list.
 RSS_FEEDS = [
     ("OpenAI News", "https://openai.com/news/rss.xml"),
     ("Hugging Face Blog", "https://huggingface.co/blog/feed.xml"),
@@ -53,7 +51,5 @@ def fetch_latest_news(domain: str = "AI and Technology", per_feed: int = 10) -> 
         except Exception as exc:
             logger.warning("Could not read %s: %s", url, exc)
 
-    # Highest editorial score first; the publisher still enforces memory and
-    # publishes at most one item per autonomous cycle.
     candidates.sort(key=lambda item: item["score"], reverse=True)
     return candidates

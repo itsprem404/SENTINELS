@@ -6,13 +6,13 @@ In contrast to relying on prompts, SENTINELS autonomously **detects live topics,
 
 ### Main features:
 
-* Detecting live AI & technology topics
-* Editorial judgement & topic rejection
-* Writing style consistency
-* Persistent memory (no duplicate content)
-* Autonomous background publishing
-* Publishing reasoning & source transparency
-* Persistent feed (SQLite)
+- Detecting live AI & technology topics
+- Editorial judgement & topic rejection
+- Writing style consistency
+- Persistent memory (no duplicate content)
+- Autonomous background publishing
+- Publishing reasoning & source transparency
+- Persistent feed (SQLite)
 
 ### Team
 

@@ -7,7 +7,7 @@ load_dotenv()
 
 try:
     from groq import Groq
-except Exception:  # pragma: no cover
+except Exception: 
     Groq = None
 
 

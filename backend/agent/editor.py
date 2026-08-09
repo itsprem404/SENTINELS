@@ -40,8 +40,6 @@ def evaluate_topic(title: str, summary: str = "", domain: str = "AI and Technolo
 
     matches = [k for k in TECH_KEYWORDS if _contains_keyword(text, k)]
 
-    # A technology signal is required. Generic headlines are intentionally
-    # rejected so the agent demonstrates selectivity.
     if not matches:
         return {
             "publish": False,
@@ -49,7 +47,6 @@ def evaluate_topic(title: str, summary: str = "", domain: str = "AI and Technolo
             "reason": f"Rejected: insufficient evidence that the story is relevant to {domain}.",
         }
 
-    # Prefer stories with an actual change or release signal.
     change_words = (
         "launch", "release", "released", "update", "updated", "announce",
         "announced", "introduce", "introduced", "research", "researchers",
