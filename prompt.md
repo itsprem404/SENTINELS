@@ -1,4 +1,4 @@
-# By reading all these prompts you all will think we made whole thing with just ai but trust me it's not just ai, Yes we did made whole backend structure by chatgpt but we changed everything by the time when we started making good database and frontend!! (Because of Frontend We had to modify most of the Backend)...
+# By reading all these prompts you all will think we made whole thing with just ai but trust me it's not just ai, Yes we did made whole backend structure by chatgpt but we changed everything by the time when we started making good database and frontend!! (Because of Frontend We had to modify most of the Backend)... And This is not the Only Chat we have done but it's difficult to add every chat so we added the biggest one.
 
 
 
