@@ -1,26 +1,37 @@
+import { formatDate } from "../utils/formatDate";
+
 function PostCard({ post }) {
   return (
-    <div className="post-card">
-      <h2>{post.text}</h2>
+    <article className="post-card">
+      <div className="post-topline">
+        <span className="post-badge">PUBLISHED</span>
+        <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
+      </div>
 
-      <p className="rationale">{post.rationale}</p>
+      <p className="post-text">{post.text}</p>
 
-      <div className="meta">
-        <span>🕒 {new Date(post.createdAt).toLocaleString()}</span>
+      <div className="rationale-box">
+        <div className="section-label">WHY THIS WAS PUBLISHED</div>
+        <p>{post.rationale}</p>
       </div>
 
       {post.sources?.length > 0 && (
         <div className="sources">
-          <strong>Sources:</strong>
-
+          <div className="section-label">LIVE SOURCES</div>
           {post.sources.map((source, index) => (
-            <a key={index} href={source} target="_blank">
-              {source}
+            <a
+              key={`${source}-${index}`}
+              href={source}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span>{new URL(source).hostname.replace("www.", "")}</span>
+              <span aria-hidden="true">↗</span>
             </a>
           ))}
         </div>
       )}
-    </div>
+    </article>
   );
 }
 

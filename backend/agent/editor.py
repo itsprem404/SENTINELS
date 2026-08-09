@@ -1,71 +1,69 @@
-AI_KEYWORDS = [
-    "ai",
-    "artificial intelligence",
-    "machine learning",
-    "llm",
-    "gpt",
-    "gemini",
-    "claude",
-    "openai",
-    "anthropic",
-    "google",
-    "deepmind",
-    "hugging face",
-    "robotics",
-    "python",
-    "developer",
-    "programming",
-    "software",
-    "github",
-    "cybersecurity",
-    "security"
-]
-
-REJECT_KEYWORDS = [
-    "football",
-    "cricket",
-    "movie",
-    "bollywood",
-    "hollywood",
-    "celebrity",
-    "politics",
-    "election",
-    "murder",
-    "crime",
-    "fashion",
-    "music",
-    "religion"
-]
+import re
+from typing import Any
 
 
-def evaluate_topic(title: str, summary: str = ""):
-    """
-    Returns:
-    {
-        "publish": bool,
-        "reason": str
-    }
-    """
+TECH_KEYWORDS = {
+    "ai", "artificial intelligence", "machine learning", "llm", "model",
+    "generative ai", "agent", "agents", "inference", "reasoning", "openai",
+    "anthropic", "google", "deepmind", "gemini", "claude", "gpt", "hugging face",
+    "huggingface", "mistral", "meta ai", "robotics", "python", "developer",
+    "programming", "software", "github", "open source", "cybersecurity",
+    "security", "vulnerability", "malware", "cloud", "semiconductor", "gpu",
+    "chip", "datacenter", "developer tools", "api", "computer vision",
+    "natural language", "rl", "reinforcement learning", "robot", "automation",
+}
 
-    text = f"{title} {summary}".lower()
+REJECT_KEYWORDS = {
+    "football", "cricket", "movie", "bollywood", "hollywood", "celebrity",
+    "fashion", "music", "religion", "gossip", "horoscope", "recipe",
+}
 
-    # Reject unwanted topics
+
+def _contains_keyword(text: str, keyword: str) -> bool:
+    if " " in keyword:
+        return keyword in text
+    return bool(re.search(rf"\b{re.escape(keyword)}\b", text))
+
+
+def evaluate_topic(title: str, summary: str = "", domain: str = "AI and Technology") -> dict[str, Any]:
+    """Make the editorial gate explicit instead of publishing every RSS item."""
+
+    text = f"{title} {summary}".lower().strip()
+
     for keyword in REJECT_KEYWORDS:
-        if keyword in text:
+        if _contains_keyword(text, keyword):
             return {
                 "publish": False,
-                "reason": f"Rejected because it belongs to '{keyword}' category."
+                "score": 0,
+                "reason": f"Rejected: outside the persona's technology scope ({keyword}).",
             }
 
-    # Accept AI related topics
-    for keyword in AI_KEYWORDS:
-        if keyword in text:
-            return {
-                "publish": True,
-                "reason": f"Relevant AI/Technology topic matched '{keyword}'."
-            }
+    matches = [k for k in TECH_KEYWORDS if _contains_keyword(text, k)]
+
+    # A technology signal is required. Generic headlines are intentionally
+    # rejected so the agent demonstrates selectivity.
+    if not matches:
+        return {
+            "publish": False,
+            "score": 20,
+            "reason": f"Rejected: insufficient evidence that the story is relevant to {domain}.",
+        }
+
+    # Prefer stories with an actual change or release signal.
+    change_words = (
+        "launch", "release", "released", "update", "updated", "announce",
+        "announced", "introduce", "introduced", "research", "researchers",
+        "security", "vulnerability", "benchmark", "acquire", "acquisition",
+        "open source", "model", "chip", "api",
+    )
+    change_signal = any(word in text for word in change_words)
+    score = min(100, 55 + len(matches) * 7 + (15 if change_signal else 0))
 
     return {
-        "publish": False,
-        "reason": "Not relevant to AI and Technology persona."
+        "publish": score >= 55,
+        "score": score,
+        "reason": (
+            f"Selected: strong {domain} relevance ({', '.join(matches[:3])})"
+            + (" and a concrete development signal." if change_signal else ".")
+        ),
     }

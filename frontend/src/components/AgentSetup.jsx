@@ -1,43 +1,38 @@
 import { useState } from "react";
 import { initializeAgent } from "../api/agentApi";
 
+const initialForm = {
+  name: "",
+  domain: "",
+  role: "",
+  description: "",
+};
+
 function AgentSetup({ onAgentCreated }) {
-  const [form, setForm] = useState({
-    name: "",
-    domain: "",
-    role: "",
-    description: "",
-  });
-
+  const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleChange(e) {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  function handleChange(event) {
+    setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setError("");
 
     try {
       setLoading(true);
-
       const response = await initializeAgent({
-        name: form.name,
-        domain: form.domain,
-        role: form.role,
-        description: form.description,
+        name: form.name.trim(),
+        domain: form.domain.trim(),
+        role: form.role.trim() || undefined,
+        description: form.description.trim() || undefined,
       });
-
       localStorage.setItem("agentId", response.agentId);
-
       onAgentCreated(response.agentId);
-    } catch (error) {
-      console.error("Agent initialization failed:", error);
-
-      alert("Agent initialization failed");
+    } catch (err) {
+      setError(err.message || "Agent initialization failed.");
     } finally {
       setLoading(false);
     }
@@ -47,68 +42,76 @@ function AgentSetup({ onAgentCreated }) {
     <div className="setup-container">
       <div className="setup-card">
         <div className="setup-header">
-          <div className="agent-icon">🛰️</div>
-
-          <h2>Create Intelligence Agent</h2>
-
-          <p>Configure your autonomous AI persona</p>
+          <div className="agent-icon">◈</div>
+          <div className="eyebrow">AUTONOMOUS CREATOR</div>
+          <h2>Initialize your Sentinel</h2>
+          <p>
+            Give it an identity once. It will research, judge, remember and
+            publish without another prompt.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="input-group">
-            <label>Agent Name</label>
-
+            <label htmlFor="name">Persona name</label>
             <input
+              id="name"
               name="name"
               type="text"
-              placeholder="Cyber Sentinel"
+              placeholder="Persona Name"
               value={form.name}
               onChange={handleChange}
+              maxLength={80}
               required
             />
           </div>
 
           <div className="input-group">
-            <label>Intelligence Domain</label>
-
+            <label htmlFor="domain">Technology domain</label>
             <input
+              id="domain"
               name="domain"
               type="text"
-              placeholder="Cybersecurity"
+              placeholder="Domain Name (Ex: AI Security)"
               value={form.domain}
               onChange={handleChange}
+              maxLength={120}
               required
             />
           </div>
 
-          <div className="input-group">
-            <label>Agent Role</label>
+          <details className="advanced-fields">
+            <summary>Optional persona details</summary>
 
-            <input
-              name="role"
-              type="text"
-              placeholder="Threat Intelligence Analyst"
-              value={form.role}
-              onChange={handleChange}
-              required
-            />
-          </div>
+            <div className="input-group">
+              <label htmlFor="role">Role</label>
+              <input
+                id="role"
+                name="role"
+                type="text"
+                placeholder="Ex: AI Security Researcher"
+                value={form.role}
+                onChange={handleChange}
+              />
+            </div>
 
-          <div className="input-group">
-            <label>Mission Description</label>
+            <div className="input-group">
+              <label htmlFor="description">Mission</label>
+              <textarea
+                id="description"
+                name="description"
+                placeholder="Ex: Track meaningful security changes in AI systems and developer infrastructure."
+                value={form.description}
+                onChange={handleChange}
+                rows="3"
+              />
+            </div>
+          </details>
 
-            <textarea
-              name="description"
-              placeholder="Monitor cybersecurity threats and generate intelligence reports"
-              value={form.description}
-              onChange={handleChange}
-              rows="4"
-              required
-            />
-          </div>
+          {error && <div className="form-error">{error}</div>}
 
           <button type="submit" disabled={loading}>
-            {loading ? "Initializing Agent..." : "🚀 Launch AI Agent"}
+            {loading ? "Initializing..." : "Launch autonomous agent"}
           </button>
         </form>
       </div>

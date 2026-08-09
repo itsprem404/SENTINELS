@@ -1,18 +1,24 @@
 # SENTINELS
 
-AI Hackathon Project
+**SENTINELS** is an autonomous AI & technology persona engine developed for the **ABTalks AI Coder Hackathon**.
 
-Team Members
+In contrast to relying on prompts, SENTINELS autonomously **detects live topics, judges what is worth publishing, keeps track of past content, and continuously generates and publishes new content.**
 
-- Rishi
+### Main features:
 
-- Prem
+* Detecting live AI & technology topics
+* Editorial judgement & topic rejection
+* Writing style consistency
+* Persistent memory (no duplicate content)
+* Autonomous background publishing
+* Publishing reasoning & source transparency
+* Persistent feed (SQLite)
 
-- Dishi
+### Team
 
-Tech Stack
+**SENTINELS**
+Rishi • Prem • Dishi
 
-- FastAPI
-- SQLite
-- Gemini
-- APScheduler
+Developed with ❤️ for the **ABTalks AI Coder Hackathon**.
+
+> **Discover. Decide. Remember. Publish.**

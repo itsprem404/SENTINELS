@@ -1,300 +1,168 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getFeed, getProfile } from "../api/agentApi";
-
 import AgentSetup from "../components/AgentSetup";
-import PostCard from "../components/PostCard";
 import PersonaProfile from "../components/PersonaProfile";
+import PostCard from "../components/PostCard";
+
+const POLL_MS = 30_000;
 
 function Dashboard() {
-
+  const [agentId, setAgentId] = useState(() => localStorage.getItem("agentId"));
   const [posts, setPosts] = useState([]);
-
-  const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState(null);
-  const [profileLoading, setProfileLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [lastChecked, setLastChecked] = useState(null);
 
-  const [agentId, setAgentId] = useState(() => {
-    return localStorage.getItem("agentId");
-  });
-
-
-  useEffect(() => {
-  async function loadAgentData() {
+  const loadData = useCallback(async (showLoading = false) => {
     if (!agentId) return;
 
     try {
-      setLoading(true);
-      setProfileLoading(true);
-
+      if (showLoading) setLoading(true);
+      setError("");
       const [feedData, profileData] = await Promise.all([
         getFeed(agentId),
         getProfile(agentId),
       ]);
-
       setPosts(feedData.posts || []);
       setProfile(profileData);
-    } catch (error) {
-      console.error("Agent data error:", error);
+      setLastChecked(new Date());
+    } catch (err) {
+      setError(err.message || "Could not reach the autonomous agent.");
     } finally {
       setLoading(false);
-      setProfileLoading(false);
     }
+  }, [agentId]);
+
+  useEffect(() => {
+    loadData(true);
+    if (!agentId) return undefined;
+
+    const interval = window.setInterval(() => loadData(false), POLL_MS);
+    return () => window.clearInterval(interval);
+  }, [agentId, loadData]);
+
+  function handleAgentCreated(id) {
+    localStorage.setItem("agentId", id);
+    setAgentId(id);
   }
-
-  loadAgentData();
-}, [agentId]);
-
 
   function handleSwitchAgent() {
-
-    const confirmed = window.confirm(
-      "Switch agent?\n\nYour current agent will remain saved, but you will return to the agent setup screen."
-    );
-
-
-    if (!confirmed) {
+    if (!window.confirm("Create a different persona? The current agent stays saved on the server.")) {
       return;
     }
-
-
     localStorage.removeItem("agentId");
-
     setAgentId(null);
-
     setPosts([]);
-
+    setProfile(null);
   }
 
-
   return (
-
-    <div className="dashboard">
-
-      {/* =========================
-          HEADER
-      ========================= */}
-
+    <main className="dashboard">
       <header className="hero">
-
-        <h1>SENTINELS</h1>
-
+        <div className="hero-grid" />
+        <div className="eyebrow">SENTINELS / AUTONOMOUS INTELLIGENCE</div>
+        <h1>It watches. It judges. It publishes.</h1>
         <p>
-          Autonomous AI Persona Dashboard
+          A persistent AI & technology persona that turns live information
+          into a selective editorial feed.
         </p>
-
+        <div className="hero-tags">
+          <span>LIVE RESEARCH</span>
+          <span>EDITORIAL GATE</span>
+          <span>MEMORY</span>
+          <span>SCHEDULED PUBLISHING</span>
+        </div>
       </header>
 
-
-
-      {/* =========================
-          CREATE AGENT
-      ========================= */}
-
-      {!agentId && (
-
-        <section className="setup-section">
-
-          <AgentSetup
-            onAgentCreated={(id) => {
-
-              localStorage.setItem(
-                "agentId",
-                id
-              );
-
-              setAgentId(id);
-
-            }}
-          />
-
-        </section>
-
-      )}
-
-
-
-      {/* =========================
-          AGENT DASHBOARD
-      ========================= */}
-
-      {agentId && (
-
+      {!agentId ? (
+        <AgentSetup onAgentCreated={handleAgentCreated} />
+      ) : (
         <>
-
-          {/* AGENT STATUS */}
-
           <section className="status-grid">
-
-
-            <div className="status-card">
-
-              <div className="indicator"></div>
-
+            <div className="status-card active">
+              <div className="status-icon"><span /></div>
               <div>
-
-                <h3>
-                  Agent Active
-                </h3>
-
-                <p>
-                  Autonomous monitoring enabled
-                </p>
-
+                <div className="section-label">RUNTIME</div>
+                <h3>Agent is autonomous</h3>
+                <p>Research loop continues without user prompts.</p>
               </div>
-
             </div>
-
-
 
             <div className="info-card">
-
-              <h3>
-                Agent ID
-              </h3>
-
-              <code>
-                {agentId.slice(0, 8)}
-                ...
-                {agentId.slice(-6)}
-              </code>
-
+              <div className="section-label">PUBLISHED</div>
+              <strong>{posts.length}</strong>
+              <p>Persistent reports in memory</p>
             </div>
-
-
 
             <div className="info-card">
-
-              <h3>
-                Intelligence Reports
-              </h3>
-
-              <strong>
-                {posts.length}
-              </strong>
-
+              <div className="section-label">POLLING</div>
+              <strong>30s</strong>
+              <p>{lastChecked ? `Last checked ${lastChecked.toLocaleTimeString()}` : "Connecting..."}</p>
             </div>
-
           </section>
 
-
-
-          {/* =========================
-              AGENT CONTROLS
-          ========================= */}
+          {error && (
+            <div className="connection-banner">
+              <strong>Connection issue</strong>
+              <span>{error}</span>
+              <button onClick={() => loadData(true)}>Retry</button>
+            </div>
+          )}
 
           <section className="agent-controls">
-
             <div>
-
-              <span className="control-label">
-                CURRENT AGENT
-              </span>
-
+              <span className="control-label">AUTONOMOUS LOOP</span>
               <p>
-                Your autonomous intelligence persona is active.
+                Live feeds → editorial scoring → memory check → one post per cycle
               </p>
-
             </div>
-
-
-            <button
-              className="switch-agent-btn"
-              onClick={handleSwitchAgent}
-            >
-              ⇄ Switch / Create Agent
+            <button className="switch-agent-btn" onClick={handleSwitchAgent}>
+              Switch persona
             </button>
-
           </section>
 
-          {/* =========================
-              PERSONA PROFILE
-             ========================= */}
-
-          {!profileLoading && profile && (
-            <PersonaProfile profile={profile} />
-          )}
-
-
-          {/* =========================
-              FEED HEADER
-          ========================= */}
+          <PersonaProfile profile={profile} />
 
           <div className="feed-header">
-
-            <h2>
-              Latest Intelligence Feed
-            </h2>
-
-            <p>
-              AI generated threat analysis and insights
-            </p>
-
+            <div>
+              <div className="eyebrow">THE FEED</div>
+              <h2>Latest intelligence</h2>
+              <p>Newest first. Previously published posts remain available.</p>
+            </div>
+            <button className="refresh-btn" onClick={() => loadData(true)}>
+              ↻ Refresh now
+            </button>
           </div>
 
-
-
-          {/* =========================
-              LOADING
-          ========================= */}
-
-          {loading && (
-
-            <div className="loading">
-
-              Analyzing intelligence streams...
-
+          {loading ? (
+            <div className="empty-state">
+              <div className="loader" />
+              <h3>Connecting to the research loop</h3>
+              <p>Checking the persistent agent memory and live feed.</p>
             </div>
-
-          )}
-
-
-
-          {/* =========================
-              EMPTY FEED
-          ========================= */}
-
-          {!loading &&
-            posts.length === 0 && (
-
-              <div className="loading">
-
-                No intelligence reports available.
-
-              </div>
-
-            )}
-
-
-
-          {/* =========================
-              POSTS
-          ========================= */}
-
-          {!loading && posts.length > 0 && (
-
+          ) : posts.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-orbit">◌</div>
+              <h3>No reports yet</h3>
+              <p>
+                The agent will research live sources automatically. Its first
+                autonomous cycle runs shortly after initialization.
+              </p>
+            </div>
+          ) : (
             <div className="feed">
-
-              {posts.map((post) => (
-
-                <PostCard
-                  key={post.id}
-                  post={post}
-                />
-
-              ))}
-
+              {posts.map((post) => <PostCard key={post.id} post={post} />)}
             </div>
-
           )}
 
+          <footer className="footer">
+            SENTINELS keeps editorial rationale and source links with every post.
+          </footer>
         </>
-
       )}
-
-    </div>
-
+    </main>
   );
 }
-
 
 export default Dashboard;
