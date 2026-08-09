@@ -8,12 +8,45 @@ class Persona(Base):
     __tablename__ = "personas"
 
     id = Column(Integer, primary_key=True, index=True)
-    agent_id = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    domain = Column(String, nullable=False)
 
-    writing_style = Column(String, default="Professional")
-    interests = Column(Text, default="AI, Technology")
+    agent_id = Column(
+        String,
+        unique=True,
+        nullable=False
+    )
+
+    name = Column(
+        String,
+        nullable=False
+    )
+
+    domain = Column(
+        String,
+        nullable=False
+    )
+
+    role = Column(
+        String,
+        nullable=False,
+        default="AI Intelligence Analyst"
+    )
+
+    description = Column(
+        Text,
+        nullable=False,
+        default="Autonomous intelligence monitoring agent"
+    )
+
+    writing_style = Column(
+        String,
+        default="Professional"
+    )
+
+    interests = Column(
+        Text,
+        default="AI, Technology"
+    )
+
     created_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc)
@@ -23,21 +56,42 @@ class Persona(Base):
 class Post(Base):
     __tablename__ = "posts"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
 
-    agent_id = Column(String, nullable=False)
+    agent_id = Column(
+        String,
+        nullable=False
+    )
 
     created_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc)
     )
 
-    text = Column(Text, nullable=False)
+    text = Column(
+        Text,
+        nullable=False
+    )
 
-    rationale = Column(Text, nullable=False)
+    rationale = Column(
+        Text,
+        nullable=False
+    )
 
-    sources = Column(Text, nullable=False)
+    sources = Column(
+        Text,
+        nullable=False
+    )
 
-    topic = Column(String)
+    topic = Column(
+        String
+    )
 
-    status = Column(String, default="published")
+    status = Column(
+        String,
+        default="published"
+    )
