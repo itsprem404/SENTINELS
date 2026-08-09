@@ -15,8 +15,7 @@ router = APIRouter(prefix="/api/agent", tags=["Agent"])
 
 @router.post("/init")
 def initialize_agent(request: InitRequest, db: Session = Depends(get_db)):
-    # The evaluator calls this exactly once. We accept the published contract
-    # (name + domain) and derive the rest of the persona deterministically.
+
     agent_id = str(uuid.uuid4())
     role = request.persona.role or f"{request.persona.domain} Intelligence Analyst"
     description = (
@@ -38,7 +37,6 @@ def initialize_agent(request: InitRequest, db: Session = Depends(get_db)):
     db.add(persona)
     db.commit()
 
-    # Wake the autonomous worker; the evaluator does not need another call.
     trigger_cycle()
 
     return {"agentId": agent_id}

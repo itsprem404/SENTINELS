@@ -11,8 +11,6 @@ def topic_already_published(db: Session, agent_id: str, topic: str) -> bool:
     if exact:
         return True
 
-    # Lightweight semantic guard: repeated distinctive phrases in titles are
-    # treated as already covered even when a feed changes punctuation.
     normalized = " ".join(topic.lower().split())
     words = [w for w in normalized.replace(":", " ").split() if len(w) > 4][:8]
     if len(words) < 3:

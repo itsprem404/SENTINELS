@@ -49,8 +49,6 @@ def start_scheduler():
     _scheduler_started = True
 
     def loop():
-        # If initialization happens during the first few seconds, trigger_cycle
-        # wakes this wait and the new persona gets researched immediately.
         _wake_event.wait(INITIAL_DELAY_SECONDS)
         _wake_event.clear()
 
