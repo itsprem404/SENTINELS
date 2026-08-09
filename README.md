@@ -16,7 +16,7 @@ In contrast to relying on prompts, SENTINELS autonomously **detects live topics,
 
 ### Team
 
-**SENTINELS**
+**SENTINELS:**
 Rishi • Prem • Dishi
 
 Developed with ❤️ for the **ABTalks AI Coder Hackathon**.
